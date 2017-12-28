@@ -10,4 +10,6 @@
 
 @interface StickyCollectionViewCell : UICollectionViewCell
 
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+
 @end

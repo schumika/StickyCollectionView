@@ -10,4 +10,10 @@
 
 @interface AJPlayer : NSObject
 
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSArray *scores;
+
+- (id)initWithName:(NSString *)name andScores:(NSArray *)scores;
+- (double)total;
+
 @end
