@@ -42,27 +42,6 @@ static NSString * const topCellReuseIdentifier = @"TopCell";
         [self.players addObject:player];
     }
     
-//    // process data
-//    NSMutableArray *processedData = [NSMutableArray array];
-//
-//    // the first row will contain players' names
-//    NSMutableArray *names = [NSMutableArray array];
-//    for (AJPlayer *player in self.players) {
-//        [names addObject:player.name];
-//    }
-//    [processedData addObject:names];
-//
-//    // the next rows will contain each the scores of a round in descending order
-//    int maxRounds = (int)[[self.players[0] scores] count]-1;
-//    for (int round = maxRounds; round > 0; round --) {
-//        NSMutableArray *roundScores = [NSMutableArray array];
-//        for (AJPlayer *player in self.players) {
-//            [roundScores addObject:player.scores[round]];
-//        }
-//        [processedData addObject:roundScores];
-//    }
-//
-//    self.inputData = [processedData copy];
 }
 
 #pragma mark <UICollectionViewDataSource>
