@@ -7,92 +7,106 @@
 //
 
 #import "StickyCollectionViewController.h"
+#import "StickyCollectionViewCell.h"
+#import "StickyTopCollectionViewCell.h"
+#import "AJPlayer.h"
 
 @interface StickyCollectionViewController ()
+
+//@property (nonatomic, strong) NSArray *inputData;
+@property (nonatomic, strong) NSMutableArray<AJPlayer *> *players;
 
 @end
 
 @implementation StickyCollectionViewController
 
-static NSString * const reuseIdentifier = @"Cell";
+static NSString * const reuseIdentifier = @"ContentCell";
+static NSString * const topCellReuseIdentifier = @"TopCell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Uncomment the following line to preserve selection between presentations
-    // self.clearsSelectionOnViewWillAppear = NO;
+    [self createInputData];
+}
+
+- (void)createInputData {
+    NSArray *standardScores = @[@200, @499, @399, @599, @372, @596, @398, @297, @276, @345, @436, @45, @72, @365, @765, @398, @297, @276, @345, @436, @45, @72, @365, @765];
     
-    // Register cell classes
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
-    // Do any additional setup after loading the view.
+    // ------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    // create data (TODO: get from db)
+    self.players = [NSMutableArray array];
+    for (int plIndex = 0; plIndex < 12; plIndex ++) {
+        AJPlayer *player = [[AJPlayer alloc] initWithName:[NSString stringWithFormat:@"Pl.%d", plIndex+1] andScores:[standardScores copy]];
+        [self.players addObject:player];
+    }
+    
+//    // process data
+//    NSMutableArray *processedData = [NSMutableArray array];
+//
+//    // the first row will contain players' names
+//    NSMutableArray *names = [NSMutableArray array];
+//    for (AJPlayer *player in self.players) {
+//        [names addObject:player.name];
+//    }
+//    [processedData addObject:names];
+//
+//    // the next rows will contain each the scores of a round in descending order
+//    int maxRounds = (int)[[self.players[0] scores] count]-1;
+//    for (int round = maxRounds; round > 0; round --) {
+//        NSMutableArray *roundScores = [NSMutableArray array];
+//        for (AJPlayer *player in self.players) {
+//            [roundScores addObject:player.scores[round]];
+//        }
+//        [processedData addObject:roundScores];
+//    }
+//
+//    self.inputData = [processedData copy];
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
+    return [self.players[0].scores count] + 1;
 }
 
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of items
-    return 0;
+    return self.players.count + 1;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    UICollectionViewCell *cell = nil;
+    if (indexPath.section == 0 && indexPath.row != 0) {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:topCellReuseIdentifier forIndexPath:indexPath];
+    } else {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    }
     
-    // Configure the cell
+    if (indexPath.section % 2 != 0) {
+        cell.backgroundColor = indexPath.row == 0 ? [UIColor colorWithWhite:0.7 alpha:1.0] : [UIColor colorWithWhite:242.0/255.0 alpha:1.0];
+    } else {
+        cell.backgroundColor = indexPath.row == 0 ? [UIColor colorWithWhite:0.5 alpha:1.0] : [UIColor whiteColor];
+    }
+    
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            [(StickyCollectionViewCell *)cell contentLabel].text = @"X";
+        } else {
+            [(StickyTopCollectionViewCell *)cell topLabel].text = self.players[indexPath.row-1].name;  // player name
+            [(StickyTopCollectionViewCell *)cell bottomLabel].text = [NSString stringWithFormat:@"%g", [self.players[indexPath.row-1] total]]; // player total
+        }
+    } else {
+        int round = (int)(self.players[0].scores.count - indexPath.section);
+        if (indexPath.row == 0) {
+            [(StickyCollectionViewCell *)cell contentLabel].text = [NSString stringWithFormat:@"#%d", round+1]; // #round
+        } else {
+            [(StickyCollectionViewCell *)cell contentLabel].text = [NSString stringWithFormat:@"%d", [(NSNumber *)self.players[indexPath.row - 1].scores[round] intValue]]; // score
+        }
+    }
     
     return cell;
 }
-
-#pragma mark <UICollectionViewDelegate>
-
-/*
-// Uncomment this method to specify if the specified item should be highlighted during tracking
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {
-	return YES;
-}
-*/
-
-/*
-// Uncomment this method to specify if the specified item should be selected
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-/*
-// Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath {
-	return NO;
-}
-
-- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	return NO;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	
-}
-*/
 
 @end
